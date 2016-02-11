@@ -1,6 +1,7 @@
 package org.originmc.blockvisualiser;
 
 import com.comphenix.packetwrapper.WrapperPlayServerMultiBlockChange;
+import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
 import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
 import com.google.common.collect.HashBasedTable;
@@ -48,7 +49,7 @@ public class VisualiseUtil {
             blockChangeInfo[i++] = new MultiBlockChangeInfo(entry.getKey(), WrappedBlockData.createData(data.getItemType()));
         }
         WrapperPlayServerMultiBlockChange packet = new WrapperPlayServerMultiBlockChange();
-        packet.setChunk(new com.comphenix.protocol.wrappers.ChunkCoordIntPair(chunk.getX(), chunk.getZ()));
+        packet.setChunk(new ChunkCoordIntPair(chunk.getX(), chunk.getZ()));
         packet.setRecords(blockChangeInfo);
         packet.sendPacket(player);
     }

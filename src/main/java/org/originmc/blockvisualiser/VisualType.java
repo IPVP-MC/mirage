@@ -31,18 +31,18 @@ public enum VisualType {
     CREATE_CLAIM_SELECTION((player, location) -> new VisualBlockData(location.getBlockY() % 3 != 0 ? Material.GLASS : Material.GOLD_BLOCK))
     ;
 
-    private LocationData data;
+    private BlockGenerator data;
 
-    VisualType(LocationData data) {
+    VisualType(BlockGenerator data) {
         this.data = data;
     }
 
     /**
-     * Gets the {@link LocationData} instance.
+     * Gets the {@link BlockGenerator} instance.
      *
      * @return the filler
      */
-    public LocationData blockFiller() {
+    public BlockGenerator blockFiller() {
         return data;
     }
 }

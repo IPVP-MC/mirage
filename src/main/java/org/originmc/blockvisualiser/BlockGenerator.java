@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 /**
  * Represents how visual blocks are filled.
  */
-interface LocationData {
+interface BlockGenerator {
 
     /**
      * Gets block data to show a player for a specific location
