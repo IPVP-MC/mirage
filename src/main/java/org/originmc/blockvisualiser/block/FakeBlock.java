@@ -1,8 +1,8 @@
 package org.originmc.blockvisualiser.block;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.originmc.blockvisualiser.generator.BlockGenerator;
-import org.originmc.blockvisualiser.Position;
 
 public interface FakeBlock {
 
@@ -36,11 +36,11 @@ public interface FakeBlock {
     Data getData();
 
     /**
-     * Returns the position of this block.
+     * Returns the location of this block.
      *
-     * @return the position
+     * @return the location
      */
-    Position getPosition();
+    Location getLocation();
 
     /**
      * Returns the block generator that was used to create this block.

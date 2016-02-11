@@ -1,17 +1,17 @@
 package org.originmc.blockvisualiser.block;
 
-import org.originmc.blockvisualiser.Position;
+import org.bukkit.Location;
 import org.originmc.blockvisualiser.generator.BlockGenerator;
 
 public class FakeBlockImpl implements FakeBlock {
 
     private final Data data;
-    private final Position position;
+    private final Location location;
     private final BlockGenerator generator;
 
-    public FakeBlockImpl(Data data, Position position, BlockGenerator generator) {
+    public FakeBlockImpl(Data data, Location position, BlockGenerator generator) {
         this.data = data;
-        this.position = position;
+        this.location = position;
         this.generator = generator;
     }
 
@@ -21,8 +21,8 @@ public class FakeBlockImpl implements FakeBlock {
     }
 
     @Override
-    public Position getPosition() {
-        return position;
+    public Location getLocation() {
+        return location;
     }
 
     @Override
