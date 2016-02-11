@@ -27,7 +27,7 @@ public enum VisualType {
     // Faction faction = HCF.getPlugin().getFactionManager().getFactionAt(location);
     // return new VisualBlockData(Material.STAINED_GLASS, (faction != null ? faction.getRelation(player) : Relation.ENEMY).toDyeColour().getData());
     CLAIM_MAP((player, location) -> new VisualBlockData(Material.STAINED_GLASS, (byte) 14)),
-    
+
     CREATE_CLAIM_SELECTION((player, location) -> new VisualBlockData(location.getBlockY() % 3 != 0 ? Material.GLASS : Material.GOLD_BLOCK))
     ;
 

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -28,7 +29,7 @@ public class VisualiseHandler {
     /**
      * Gets a {@link VisualBlock} for a {@link Player}.
      *
-     * @param player   the {@link Player} to get for
+     * @param player the {@link Player} to get for
      * @param location the {@link Location} to get at
      * @return the {@link VisualBlock} or none
      * @throws NullPointerException if player or location is null
@@ -54,7 +55,7 @@ public class VisualiseHandler {
      * Gets the current {@link VisualBlock}s to their {@link Location}s that are shown
      * to a {@link Player} of a specific {@link VisualType}.
      *
-     * @param player     the {@link Player} to get for
+     * @param player the {@link Player} to get for
      * @param visualType the {@link VisualType} to get for
      * @return copied map of {@link VisualBlock}s shown to a {@link Player}.
      */
@@ -62,10 +63,16 @@ public class VisualiseHandler {
         return Maps.filterValues(getVisualBlocks(player), visualBlock -> visualType == visualBlock.getVisualType());
     }
 
+    private List<VisualBlockData> bulkGenerate(VisualType type, Player player, Iterable<Location> locations) {
+        List<VisualBlockData> data = new ArrayList<>();
+        locations.forEach(location -> data.add(type.blockFiller().getData(player, location)));
+        return data;
+    }
+
     public LinkedHashMap<Location, VisualBlockData> generate(Player player, Iterable<Location> locations, VisualType visualType, boolean canOverwrite) {
         LinkedHashMap<Location, VisualBlockData> results = new LinkedHashMap<>();
 
-        ArrayList<VisualBlockData> filled = visualType.blockFiller().bulkGenerate(player, locations);
+        List<VisualBlockData> filled = bulkGenerate(visualType, player, locations);
         if (filled != null) {
             int count = 0;
             Map<Location, MaterialData> updatedBlocks = new HashMap<>();
@@ -98,7 +105,7 @@ public class VisualiseHandler {
     /**
      * Clears a visual block at a given location for a player.
      *
-     * @param player   the player to clear for
+     * @param player the player to clear for
      * @param location the location to clear at
      * @return if the visual block was shown in the first place
      */
@@ -109,11 +116,11 @@ public class VisualiseHandler {
     /**
      * Clears a visual block at a given location for a player.
      *
-     * @param player            the player to clear for
-     * @param location          the location to clear at
+     * @param player the player to clear for
+     * @param location the location to clear at
      * @param sendRemovalPacket if a packet to send a block change should be sent
-     *                          (this is used to prevent unnecessary packets sent when
-     *                          disconnecting or changing worlds, for example)
+     * (this is used to prevent unnecessary packets sent when
+     * disconnecting or changing worlds, for example)
      * @return if the visual block was shown in the first place
      */
     public void clearVisualBlock(Player player, Location location, boolean sendRemovalPacket) {
@@ -156,9 +163,9 @@ public class VisualiseHandler {
     /**
      * Clears all visual blocks that are shown to a player of a given VisualType.
      *
-     * @param player     the player to clear for
+     * @param player the player to clear for
      * @param visualType the visual type
-     * @param predicate  the predicate to filter to
+     * @param predicate the predicate to filter to
      */
     public void clearVisualBlocks(Player player, VisualType visualType, Predicate<VisualBlock> predicate) {
         clearVisualBlocks(player, visualType, predicate, true);
@@ -167,12 +174,12 @@ public class VisualiseHandler {
     /**
      * Clears all visual blocks that are shown to a player of a given VisualType.
      *
-     * @param player             the player to clear for
-     * @param visualType         the visual type
-     * @param predicate          the predicate to filter to
+     * @param player the player to clear for
+     * @param visualType the visual type
+     * @param predicate the predicate to filter to
      * @param sendRemovalPackets if a packet to send a block change should be sent
-     *                           (this is used to prevent unnecessary packets sent when
-     *                           disconnecting or changing worlds, for example)
+     * (this is used to prevent unnecessary packets sent when
+     * disconnecting or changing worlds, for example)
      */
     @Deprecated
     public void clearVisualBlocks(Player player,
