@@ -39,7 +39,7 @@ class FakeBlockSenderImpl implements FakeBlockSender {
     @Override
     public void sendBlock(Player player, BlockGenerator generator, Location location) {
         FakeBlock block = createBlock(generator, player, location);
-        Map<Location, FakeBlock> sent = sentBlocks.putIfAbsent(player.getUniqueId(), new ConcurrentHashMap<>());
+        Map<Location, FakeBlock> sent = getSentBlocks(player);
         sent.put(location, block);
         sendSingleBlockChange(player, block);
     }
@@ -64,8 +64,19 @@ class FakeBlockSenderImpl implements FakeBlockSender {
 
     // Updates sentBlocks with a map of newly sent blocks
     private void addSentBlocks(Player player, Map<Location, FakeBlock> blocks) {
-        Map<Location, FakeBlock> sent = sentBlocks.putIfAbsent(player.getUniqueId(), new ConcurrentHashMap<>());
+        Map<Location, FakeBlock> sent = getSentBlocks(player);
         sent.putAll(blocks);
+    }
+
+    private Map<Location, FakeBlock> getSentBlocks(Player player) {
+        Map<Location, FakeBlock> sent;
+        if (!sentBlocks.containsKey(player.getUniqueId())) {
+            sent = new ConcurrentHashMap<>();
+            sentBlocks.put(player.getUniqueId(), sent);
+        } else {
+            sent = sentBlocks.get(player.getUniqueId());
+        }
+        return sent;
     }
 
     @Override
