@@ -9,14 +9,14 @@ import java.util.ArrayList;
 /**
  * Represents how visual blocks are filled.
  */
-abstract class BlockFiller {
+interface LocationData {
 
-    abstract VisualBlockData generate(Player player, Location location);
+    VisualBlockData getData(Player player, Location location);
 
-    ArrayList<VisualBlockData> bulkGenerate(Player player, Iterable<Location> locations) {
+    default ArrayList<VisualBlockData> bulkGenerate(Player player, Iterable<Location> locations) {
         ArrayList<VisualBlockData> data = new ArrayList<>(Iterables.size(locations));
         for (Location location : locations) {
-            data.add(generate(player, location));
+            data.add(getData(player, location));
         }
 
         return data;
