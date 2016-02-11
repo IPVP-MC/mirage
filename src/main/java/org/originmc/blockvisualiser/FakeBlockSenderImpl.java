@@ -86,17 +86,19 @@ class FakeBlockSenderImpl implements FakeBlockSender {
     }
 
     @Override
-    public void clearBlocks(Player player, Predicate<? extends FakeBlock> test) {
+    public void clearBlocks(Player player, Predicate<FakeBlock> test) {
         if (!sentBlocks.containsKey(player.getUniqueId())) {
             return;
         }
         Map<Location, FakeBlock> sent = sentBlocks.remove(player.getUniqueId());
         Set<FakeBlock> update = new HashSet<>();
-        sent.values().forEach(fakeBlock -> {
-            FakeBlock.Data data = getCurrentData(fakeBlock);
-            FakeBlock current = new FakeBlockImpl(data, fakeBlock.getLocation(), fakeBlock.getGenerator());
-            update.add(current);
-        });
+        sent.values().stream()
+                .filter(test::test) // Filter unwanted
+                .forEach(fakeBlock -> {
+                    FakeBlock.Data data = getCurrentData(fakeBlock);
+                    FakeBlock current = new FakeBlockImpl(data, fakeBlock.getLocation(), fakeBlock.getGenerator());
+                    update.add(current);
+                });
         handleBlockChanges(player, update);
     }
 

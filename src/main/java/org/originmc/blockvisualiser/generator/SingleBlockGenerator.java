@@ -18,6 +18,15 @@ public class SingleBlockGenerator implements BlockGenerator {
         this.data = data;
     }
 
+    /**
+     * Returns the type of block that is being generated.
+     *
+     * @return the type
+     */
+    public Material getType() {
+        return data.getType();
+    }
+
     @Override
     public Data getData(Player player, Location location) {
         return data;

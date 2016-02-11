@@ -60,6 +60,6 @@ public interface FakeBlockSender {
      * @param player the player
      * @param test the condition
      */
-    void clearBlocks(Player player, Predicate<? extends FakeBlock> test);
+    void clearBlocks(Player player, Predicate<FakeBlock> test);
 
 }

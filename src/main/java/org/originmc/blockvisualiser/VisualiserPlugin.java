@@ -8,7 +8,7 @@ import org.originmc.blockvisualiser.protocol.BlockPlaceAdapter;
 
 public class VisualiserPlugin extends JavaPlugin {
 
-    private FakeBlockSender blockSender = new FakeBlockSenderImpl();
+    private static FakeBlockSender blockSender = new FakeBlockSenderImpl();
 
     @Override
     public void onEnable() {
@@ -23,7 +23,7 @@ public class VisualiserPlugin extends JavaPlugin {
      *
      * @return the block sender
      */
-    public FakeBlockSender getBlockSender() {
+    public static FakeBlockSender getBlockSender() {
         return blockSender;
     }
 
