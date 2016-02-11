@@ -8,7 +8,9 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.material.MaterialData;
+import org.originmc.blockvisualiser.block.FakeBlock;
+import org.originmc.blockvisualiser.block.FakeBlockImpl;
+import org.originmc.blockvisualiser.generator.BlockGenerator;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,58 +26,58 @@ import java.util.function.Predicate;
 
 public class VisualiseHandler {
 
-    private final Table<UUID, Location, VisualBlock> storedVisualises = HashBasedTable.create();
+    private final Table<UUID, Location, FakeBlock> storedVisualises = HashBasedTable.create();
 
     /**
-     * Gets a {@link VisualBlock} for a {@link Player}.
+     * Gets a {@link FakeBlock} for a {@link Player}.
      *
      * @param player the {@link Player} to get for
      * @param location the {@link Location} to get at
-     * @return the {@link VisualBlock} or none
+     * @return the {@link FakeBlock} or none
      * @throws NullPointerException if player or location is null
      */
-    public VisualBlock getVisualBlockAt(Player player, Location location) throws NullPointerException {
+    public FakeBlock getFakeBlockAt(Player player, Location location) throws NullPointerException {
         Objects.requireNonNull(player, "Player cannot be null");
         Objects.requireNonNull(location, "Location cannot be null");
         return storedVisualises.get(player.getUniqueId(), location);
     }
 
     /**
-     * Gets the current {@link VisualBlock}s to their {@link Location}s that are shown
+     * Gets the current {@link FakeBlock}s to their {@link Location}s that are shown
      * to a {@link Player} of a specific {@link VisualType}.
      *
      * @param player the {@link Player} to get for
-     * @return copied map of {@link VisualBlock}s shown to a {@link Player}.
+     * @return copied map of {@link FakeBlock}s shown to a {@link Player}.
      */
-    public Map<Location, VisualBlock> getVisualBlocks(Player player) {
+    public Map<Location, FakeBlock> getFakeBlocks(Player player) {
         return new HashMap<>(storedVisualises.row(player.getUniqueId()));
     }
 
     /**
-     * Gets the current {@link VisualBlock}s to their {@link Location}s that are shown
+     * Gets the current {@link FakeBlock}s to their {@link Location}s that are shown
      * to a {@link Player} of a specific {@link VisualType}.
      *
      * @param player the {@link Player} to get for
-     * @param visualType the {@link VisualType} to get for
-     * @return copied map of {@link VisualBlock}s shown to a {@link Player}.
+     * @param generator the {@link VisualType} to get for
+     * @return copied map of {@link FakeBlock}s shown to a {@link Player}.
      */
-    public Map<Location, VisualBlock> getVisualBlocks(Player player, VisualType visualType) {
-        return Maps.filterValues(getVisualBlocks(player), visualBlock -> visualType == visualBlock.getVisualType());
+    public Map<Location, FakeBlock> getFakeBlocks(Player player, BlockGenerator generator) {
+        return Maps.filterValues(getFakeBlocks(player), block -> block.getGenerator().equals(generator));
     }
 
-    private List<VisualBlockData> bulkGenerate(VisualType type, Player player, Iterable<Location> locations) {
-        List<VisualBlockData> data = new ArrayList<>();
-        locations.forEach(location -> data.add(type.blockFiller().getData(player, location)));
+    private List<FakeBlock.Data> bulkGenerate(BlockGenerator type, Player player, Iterable<Location> locations) {
+        List<FakeBlock.Data> data = new ArrayList<>();
+        locations.forEach(location -> data.add(type.getData(player, location)));
         return data;
     }
 
-    public LinkedHashMap<Location, VisualBlockData> generate(Player player, Iterable<Location> locations, VisualType visualType, boolean canOverwrite) {
-        LinkedHashMap<Location, VisualBlockData> results = new LinkedHashMap<>();
+    public LinkedHashMap<Location, FakeBlock.Data> generate(Player player, Iterable<Location> locations, BlockGenerator generator, boolean canOverwrite) {
+        LinkedHashMap<Location, FakeBlock.Data> results = new LinkedHashMap<>();
 
-        List<VisualBlockData> filled = bulkGenerate(visualType, player, locations);
+        List<FakeBlock.Data> filled = bulkGenerate(generator, player, locations);
         if (filled != null) {
             int count = 0;
-            Map<Location, MaterialData> updatedBlocks = new HashMap<>();
+            Map<Location, FakeBlock.Data> updatedBlocks = new HashMap<>();
             for (Location location : locations) {
                 if (!canOverwrite && storedVisualises.contains(player.getUniqueId(), location)) {
                     continue;
@@ -86,10 +88,10 @@ public class VisualiseHandler {
                     continue;
                 }
 
-                VisualBlockData visualBlockData = filled.get(count++);
-                results.put(location, visualBlockData);
-                updatedBlocks.put(location, visualBlockData);
-                storedVisualises.put(player.getUniqueId(), location, new VisualBlock(visualType, visualBlockData, location));
+                FakeBlock.Data data = filled.get(count++);
+                results.put(location, data);
+                updatedBlocks.put(location, data);
+                storedVisualises.put(player.getUniqueId(), location, new FakeBlockImpl(data, new Position(location), generator));
             }
 
             try {
@@ -109,8 +111,8 @@ public class VisualiseHandler {
      * @param location the location to clear at
      * @return if the visual block was shown in the first place
      */
-    public void clearVisualBlock(Player player, Location location) {
-        clearVisualBlock(player, location, true);
+    public void clearFakeBlock(Player player, Location location) {
+        clearFakeBlock(player, location, true);
     }
 
     /**
@@ -123,13 +125,13 @@ public class VisualiseHandler {
      * disconnecting or changing worlds, for example)
      * @return if the visual block was shown in the first place
      */
-    public void clearVisualBlock(Player player, Location location, boolean sendRemovalPacket) {
-        VisualBlock visualBlock = storedVisualises.remove(player.getUniqueId(), location);
-        if (sendRemovalPacket && visualBlock != null) {
+    public void clearFakeBlock(Player player, Location location, boolean sendRemovalPacket) {
+        FakeBlock FakeBlock = storedVisualises.remove(player.getUniqueId(), location);
+        if (sendRemovalPacket && FakeBlock != null) {
             // Have to send a packet to the original block type, don't send if the fake block has the same data properties though.
             Block block = location.getBlock();
-            VisualBlockData visualBlockData = visualBlock.getBlockData();
-            if (visualBlockData.getBlockType() != block.getType() || visualBlockData.getData() != block.getData()) {
+            FakeBlock.Data data = FakeBlock.getData();
+            if (data.getType() != block.getType() || data.getData() != block.getData()) {
                 player.sendBlockChange(location, block.getType(), block.getData());
             }
         }
@@ -140,7 +142,7 @@ public class VisualiseHandler {
      *
      * @param chunk the {@link Chunk} to clear in
      */
-    public void clearVisualBlocks(Chunk chunk) {
+    public void clearFakeBlocks(Chunk chunk) {
         if (!storedVisualises.isEmpty()) {
             Set<Location> keys = storedVisualises.columnKeySet();
             new HashSet<>(keys).stream()
@@ -156,49 +158,48 @@ public class VisualiseHandler {
      *
      * @param player the player to clear for
      */
-    public void clearVisualBlocks(Player player) {
-        clearVisualBlocks(player, null, null);
+    public void clearFakeBlocks(Player player) {
+        clearFakeBlocks(player, null, null);
     }
 
     /**
      * Clears all visual blocks that are shown to a player of a given VisualType.
      *
      * @param player the player to clear for
-     * @param visualType the visual type
+     * @param generator the visual type
      * @param predicate the predicate to filter to
      */
-    public void clearVisualBlocks(Player player, VisualType visualType, Predicate<VisualBlock> predicate) {
-        clearVisualBlocks(player, visualType, predicate, true);
+    public void clearFakeBlocks(Player player, BlockGenerator generator, Predicate<FakeBlock> predicate) {
+        clearFakeBlocks(player, generator, predicate, true);
     }
 
     /**
      * Clears all visual blocks that are shown to a player of a given VisualType.
      *
      * @param player the player to clear for
-     * @param visualType the visual type
+     * @param generator the visual type
      * @param predicate the predicate to filter to
      * @param sendRemovalPackets if a packet to send a block change should be sent
      * (this is used to prevent unnecessary packets sent when
      * disconnecting or changing worlds, for example)
      */
     @Deprecated
-    public void clearVisualBlocks(Player player,
-                                  VisualType visualType,
-                                  Predicate<VisualBlock> predicate,
+    public void clearFakeBlocks(Player player,
+                                  BlockGenerator generator,
+                                  Predicate<FakeBlock> predicate,
                                   boolean sendRemovalPackets) {
-
         if (!storedVisualises.containsRow(player.getUniqueId())) {
             return;
         }
 
-        Map<Location, VisualBlock> results = new HashMap<>(storedVisualises.row(player.getUniqueId())); // copy to prevent commodification
-        Map<Location, VisualBlock> removed = new HashMap<>();
-        for (Map.Entry<Location, VisualBlock> entry : results.entrySet()) {
-            VisualBlock visualBlock = entry.getValue();
-            if ((predicate == null || predicate.test(visualBlock)) && (visualType == null || visualBlock.getVisualType() == visualType)) {
+        Map<Location, FakeBlock> results = new HashMap<>(storedVisualises.row(player.getUniqueId())); // copy to prevent commodification
+        Map<Location, FakeBlock> removed = new HashMap<>();
+        for (Map.Entry<Location, FakeBlock> entry : results.entrySet()) {
+            FakeBlock block = entry.getValue();
+            if ((predicate == null || predicate.test(block)) && (generator == null || generator.equals(block.getGenerator()))) {
                 Location location = entry.getKey();
-                if (removed.put(location, visualBlock) == null) { // not really necessary, but might as well
-                    clearVisualBlock(player, location, sendRemovalPackets); // this will call remove on storedVisualises.
+                if (removed.put(location, block) == null) { // not really necessary, but might as well
+                    clearFakeBlock(player, location, sendRemovalPackets); // this will call remove on storedVisualises.
                 }
             }
         }

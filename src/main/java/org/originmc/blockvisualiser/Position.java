@@ -35,4 +35,29 @@ public class Position {
     public final int getZ() {
         return z;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 31;
+        hash = 31 * hash + world.hashCode();
+        hash = 31 * hash + (int) (Double.doubleToLongBits(this.x) ^ (Double.doubleToLongBits(this.x) >>> 32));
+        hash = 31 * hash + (int) (Double.doubleToLongBits(this.y) ^ (Double.doubleToLongBits(this.y) >>> 32));
+        hash = 31 * hash + (int) (Double.doubleToLongBits(this.z) ^ (Double.doubleToLongBits(this.z) >>> 32));
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        } else if (!(o instanceof Position)) {
+            return false;
+        } else {
+            Position p = (Position) o;
+            return p.world.equals(world)
+                    && p.x == x
+                    && p.y == y
+                    && p.z == z;
+        }
+    }
 }

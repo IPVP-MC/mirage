@@ -29,7 +29,7 @@ public class BlockPlaceAdapter extends PacketAdapter {
             }
 
             Location clickedBlock = new Location(player.getWorld(), modifier.read(0), modifier.read(1), modifier.read(2));
-            if (((VisualiserPlugin) plugin).getHandler().getVisualBlockAt(player, clickedBlock) != null) {
+            if (((VisualiserPlugin) plugin).getHandler().getFakeBlockAt(player, clickedBlock) != null) {
                 Location placedLocation = clickedBlock.clone();
                 switch (face) {
                     case 2:
@@ -48,7 +48,7 @@ public class BlockPlaceAdapter extends PacketAdapter {
                         return;
                 }
 
-                if (((VisualiserPlugin) plugin).getHandler().getVisualBlockAt(player, placedLocation) == null) {
+                if (((VisualiserPlugin) plugin).getHandler().getFakeBlockAt(player, placedLocation) == null) {
                     event.setCancelled(true);
                     player.sendBlockChange(placedLocation, Material.AIR, (byte) 0);
                     player.updateInventory();

@@ -8,9 +8,8 @@ import com.comphenix.protocol.reflect.FieldAccessException;
 import com.comphenix.protocol.reflect.StructureModifier;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.originmc.blockvisualiser.VisualBlock;
-import org.originmc.blockvisualiser.VisualBlockData;
 import org.originmc.blockvisualiser.VisualiserPlugin;
+import org.originmc.blockvisualiser.block.FakeBlock;
 
 public class BlockDigAdapter extends PacketAdapter {
 
@@ -31,12 +30,12 @@ public class BlockDigAdapter extends PacketAdapter {
                 Player player = event.getPlayer();
                 int x = modifier.read(0), y = modifier.read(1), z = modifier.read(2);
                 Location location = new Location(player.getWorld(), x, y, z);
-                VisualBlock visualBlock = ((VisualiserPlugin) plugin).getHandler().getVisualBlockAt(player, location);
+                FakeBlock visualBlock = ((VisualiserPlugin) plugin).getHandler().getFakeBlockAt(player, location);
                 if (visualBlock != null) {
                     event.setCancelled(true);
-                    VisualBlockData data = visualBlock.getBlockData();
+                    FakeBlock.Data data = visualBlock.getData();
                     if (status == FINISHED_DIGGING) {
-                        player.sendBlockChange(location, data.getBlockType(), data.getData());
+                        player.sendBlockChange(location, data.getType(), data.getData());
                     } else { // we check this because Blocks that broke pretty much straight away do not send a FINISHED for some weird reason.
                         /* TODO: Needed?
                         EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
