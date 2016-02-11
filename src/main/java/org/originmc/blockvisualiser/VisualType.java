@@ -2,6 +2,7 @@ package org.originmc.blockvisualiser;
 
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
+import org.originmc.blockvisualiser.generator.BlockGenerator;
 
 public enum VisualType {
 

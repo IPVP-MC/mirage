@@ -1,12 +1,13 @@
-package org.originmc.blockvisualiser;
+package org.originmc.blockvisualiser.generator;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.originmc.blockvisualiser.VisualBlockData;
 
 /**
  * Represents how visual blocks are filled.
  */
-interface BlockGenerator {
+public interface BlockGenerator {
 
     /**
      * Gets block data to show a player for a specific location

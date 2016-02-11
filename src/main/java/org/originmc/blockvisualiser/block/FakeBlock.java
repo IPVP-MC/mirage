@@ -1,6 +1,8 @@
-package org.originmc.blockvisualiser;
+package org.originmc.blockvisualiser.block;
 
 import org.bukkit.Material;
+import org.originmc.blockvisualiser.generator.BlockGenerator;
+import org.originmc.blockvisualiser.Position;
 
 public interface FakeBlock {
 
