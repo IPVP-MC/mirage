@@ -45,7 +45,7 @@ class FakeBlockSenderImpl implements FakeBlockSender {
     }
 
     @Override
-    public void sendBlocks(Player player, BlockGenerator generator, Collection<Location> locations) {
+    public int sendBlocks(Player player, BlockGenerator generator, Collection<Location> locations) {
         Map<Location, FakeBlock> send = new HashMap<>();
         locations.forEach(pos -> {
             FakeBlock block = createBlock(generator, player, pos);
@@ -53,6 +53,7 @@ class FakeBlockSenderImpl implements FakeBlockSender {
         });
         addSentBlocks(player, send);
         handleBlockChanges(player, send.values());
+        return send.size();
     }
 
     // Creates a fake block

@@ -36,8 +36,9 @@ public interface FakeBlockSender {
      * @param player the player
      * @param generator the generator
      * @param locations the location
+     * @return the number of blocks sent
      */
-    void sendBlocks(Player player, BlockGenerator generator, Collection<Location> locations);
+    int sendBlocks(Player player, BlockGenerator generator, Collection<Location> locations);
 
     /**
      * Reverts a fake block that was sent to a player.
