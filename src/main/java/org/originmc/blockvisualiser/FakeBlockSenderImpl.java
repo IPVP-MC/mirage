@@ -1,9 +1,9 @@
 package org.originmc.blockvisualiser;
 
-import com.comphenix.packetwrapper.WrapperPlayServerMultiBlockChange;
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
-import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
-import com.comphenix.protocol.wrappers.WrappedBlockData;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 import org.bukkit.Chunk;
@@ -14,7 +14,12 @@ import org.originmc.blockvisualiser.block.FakeBlock;
 import org.originmc.blockvisualiser.block.FakeBlockImpl;
 import org.originmc.blockvisualiser.block.SimpleBlockData;
 import org.originmc.blockvisualiser.generator.BlockGenerator;
+import org.spigotmc.SpigotDebreakifier;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -141,8 +146,14 @@ class FakeBlockSenderImpl implements FakeBlockSender {
             }
         });
 
-        //  TODO: possible ConcurrentModification with pairs.get(chunk)
-        pairs.keySet().forEach(chunk -> sendBulkBlockChange(player, chunk, pairs.get(chunk)));
+        try {
+            for (Chunk chunk : pairs.keySet()) {
+                // TODO: possible ConcurrentModification with pairs.get(chunk)
+                sendBulkBlockChange(player, chunk, pairs.get(chunk));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // Sends a single block change to a player
@@ -151,16 +162,45 @@ class FakeBlockSenderImpl implements FakeBlockSender {
     }
 
     // Sends a bulk block change in a chunk to a player
-    private void sendBulkBlockChange(Player player, Chunk chunk, Set<FakeBlock> blocks) {
-        MultiBlockChangeInfo[] blockChangeInfo = new MultiBlockChangeInfo[blocks.size()];
+    private void sendBulkBlockChange(Player player, Chunk chunk, Set<FakeBlock> blocksToSend) throws IOException {
+        PacketContainer packet = new PacketContainer(PacketType.Play.Server.MULTI_BLOCK_CHANGE);
+        ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream(blocksToSend.size());
+        DataOutputStream dataOutputStream = new DataOutputStream(byteOutputStream);
+
+        short[] ashort = new short[blocksToSend.size()];
+        int[] blocks = new int[blocksToSend.size()];
+
         int i = 0;
-        for (FakeBlock block : blocks) {
-            FakeBlock.Data data = block.getData();
-            blockChangeInfo[i++] = new MultiBlockChangeInfo(block.getLocation(), WrappedBlockData.createData(data.getType()));
+        for (FakeBlock block : blocksToSend) {
+            Location location = block.getLocation();
+            int blockID = block.getData().getType().getId();
+            int data = block.getData().getData();
+            data = SpigotDebreakifier.getCorrectedData(blockID, data);
+
+            blocks[i] = ((blockID & 0xFFF) << 4 | data & 0xF);
+            ashort[i] = ((short) ((location.getBlockX() & 0xF) << 12 | (location.getBlockZ() & 0xF) << 8 | location.getBlockY()));
+
+            dataOutputStream.writeShort(ashort[i]);
+            dataOutputStream.writeShort(blocks[i]);
+            i++;
         }
-        WrapperPlayServerMultiBlockChange packet = new WrapperPlayServerMultiBlockChange();
-        packet.setChunk(new ChunkCoordIntPair(chunk.getX(), chunk.getZ()));
-        packet.setRecords(blockChangeInfo);
-        packet.sendPacket(player);
+
+        int expectedSize = blocksToSend.size() * 4;
+        byte[] bulk = byteOutputStream.toByteArray();
+        if (bulk.length != expectedSize) {
+            throw new IOException("Expected length: '" + expectedSize + "' doesn't match the generated length: '" + bulk.length + "'");
+        }
+
+        // Write the data to the packet
+        packet.getChunkCoordIntPairs().write(0, new ChunkCoordIntPair(chunk.getX(), chunk.getZ()));
+        packet.getByteArrays().write(0, bulk);
+        packet.getIntegers().write(0, blocksToSend.size());
+        packet.getSpecificModifier(short[].class).write(0, ashort);
+        packet.getIntegerArrays().write(0, blocks);
+        try {
+            ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
