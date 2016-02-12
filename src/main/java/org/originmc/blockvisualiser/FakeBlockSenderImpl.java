@@ -107,7 +107,7 @@ class FakeBlockSenderImpl implements FakeBlockSender {
         if (!sentBlocks.containsKey(player.getUniqueId())) {
             return;
         }
-        Map<Location, FakeBlock> sent = sentBlocks.remove(player.getUniqueId());
+        Map<Location, FakeBlock> sent = sentBlocks.get(player.getUniqueId());
         Set<FakeBlock> update = new HashSet<>();
         sent.values().stream()
                 .filter(test::test) // Filter unwanted
@@ -115,8 +115,12 @@ class FakeBlockSenderImpl implements FakeBlockSender {
                     FakeBlock.Data data = getCurrentData(fakeBlock);
                     FakeBlock current = new FakeBlockImpl(data, fakeBlock.getLocation(), fakeBlock.getGenerator());
                     update.add(current);
+                    sent.remove(fakeBlock.getLocation());
                 });
         handleBlockChanges(player, update);
+        if (sent.isEmpty()) {
+            sentBlocks.remove(player.getUniqueId());
+        }
     }
 
     // Gets an updated block data for a fake block
