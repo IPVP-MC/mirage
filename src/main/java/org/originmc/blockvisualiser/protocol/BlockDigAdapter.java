@@ -6,6 +6,7 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.FieldAccessException;
 import com.comphenix.protocol.reflect.StructureModifier;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.originmc.blockvisualiser.VisualiserPlugin;
@@ -34,14 +35,8 @@ public class BlockDigAdapter extends PacketAdapter {
                 if (visualBlock != null) {
                     event.setCancelled(true);
                     FakeBlock.Data data = visualBlock.getData();
-                    if (status == FINISHED_DIGGING) {
+                    if (status == FINISHED_DIGGING || player.getGameMode() == GameMode.CREATIVE) {
                         player.sendBlockChange(location, data.getType(), data.getData());
-                    } else { // we check this because Blocks that broke pretty much straight away do not send a FINISHED for some weird reason.
-                        /* TODO: Needed?
-                        EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
-                        if (player.getGameMode() == GameMode.CREATIVE || entityPlayer.world.getType(x, y, z).getDamage(entityPlayer, entityPlayer.world, x, y, z) >= 1.0F) {
-                            player.sendBlockChange(location, data.getBlockType(), data.getData());
-                        }*/
                     }
                 }
             }
