@@ -18,6 +18,11 @@ public class VisualiserPlugin extends JavaPlugin {
         manager.addPacketListener(new BlockPlaceAdapter(this));
     }
 
+    @Override
+    public void onDisable() {
+        getServer().getOnlinePlayers().forEach(blockSender::clearBlocks);
+    }
+
     /**
      * Returns the visual block sender instance
      *
