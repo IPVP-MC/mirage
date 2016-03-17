@@ -6,7 +6,7 @@
 
     <groupId>org.originmc</groupId>
     <artifactId>blockvisualiser</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <name>BlockVisualiser</name>
     <description>Send fake blocks to players</description>
@@ -47,10 +47,13 @@
 
     <distributionManagement>
         <repository>
-            <id>maven.sainttx.com</id>
-            <name>maven.sainttx.com-releases</name>
-            <url>http://maven.sainttx.com/artifactory/origin-mc-dev</url>
+            <id>origin</id>
+            <url>http://maven.sainttx.com/nexus/content/repositories/origin-mc-releases/</url>
         </repository>
+        <snapshotRepository>
+            <id>origin</id>
+            <url>http://maven.sainttx.com/nexus/content/repositories/origin-mc-snapshots/</url>
+        </snapshotRepository>
     </distributionManagement>
 
     <repositories>
@@ -61,6 +64,10 @@
         <repository>
             <id>protocollib-repo</id>
             <url>http://repo.dmulloy2.net/content/groups/public/</url>
+        </repository>
+        <repository>
+            <id>maven.sainttx.com</id>
+            <url>http://maven.sainttx.com/nexus/content/groups/origin/</url>
         </repository>
     </repositories>
 
