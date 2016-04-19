@@ -112,10 +112,13 @@ class FakeBlockSenderImpl implements FakeBlockSender {
         sent.values().stream()
                 .filter(test::test) // Filter unwanted
                 .forEach(fakeBlock -> {
-                    FakeBlock.Data data = getCurrentData(fakeBlock);
-                    FakeBlock current = new FakeBlockImpl(data, fakeBlock.getLocation(), fakeBlock.getGenerator());
-                    update.add(current);
-                    sent.remove(fakeBlock.getLocation());
+                    Location fakeLocation = fakeBlock.getLocation();
+                    if (fakeLocation.getWorld().isChunkLoaded(fakeLocation.getBlockX() >> 4, fakeLocation.getBlockZ() >> 4)) {
+                        FakeBlock.Data data = getCurrentData(fakeBlock);
+                        FakeBlock current = new FakeBlockImpl(data, fakeLocation, fakeBlock.getGenerator());
+                        update.add(current);
+                    }
+                    sent.remove(fakeLocation);
                 });
         handleBlockChanges(player, update);
         if (sent.isEmpty()) {
