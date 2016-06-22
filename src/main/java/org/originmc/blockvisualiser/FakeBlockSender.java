@@ -1,7 +1,7 @@
 package org.originmc.blockvisualiser;
 
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 import org.originmc.blockvisualiser.block.FakeBlock;
 import org.originmc.blockvisualiser.generator.BlockGenerator;
 
@@ -17,7 +17,7 @@ public interface FakeBlockSender {
      * @param location the location
      * @return the sent block
      */
-    FakeBlock getBlockAt(Player player, Location location);
+    FakeBlock getBlockAt(Player player, Vector location);
 
     /**
      * Sends a single {@link FakeBlock} to a player at a specific location. This method
@@ -28,7 +28,7 @@ public interface FakeBlockSender {
      * @param generator the generator
      * @param location the location
      */
-    void sendBlock(Player player, BlockGenerator generator, Location location);
+    void sendBlock(Player player, BlockGenerator generator, Vector location);
 
     /**
      * Sends multiple {@link FakeBlock}s to a player at given locations.
@@ -38,7 +38,7 @@ public interface FakeBlockSender {
      * @param locations the location
      * @return the number of blocks sent
      */
-    int sendBlocks(Player player, BlockGenerator generator, Collection<Location> locations);
+    int sendBlocks(Player player, BlockGenerator generator, Collection<Vector> locations);
 
     /**
      * Reverts a fake block that was sent to a player.
@@ -46,7 +46,7 @@ public interface FakeBlockSender {
      * @param player the player
      * @param location the location of the block
      */
-    void clearBlockAt(Player player, Location location);
+    void clearBlockAt(Player player, Vector location);
 
     /**
      * Reverts all blocks that have been sent to a player.

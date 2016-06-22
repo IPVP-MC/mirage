@@ -31,7 +31,7 @@ public class BlockDigAdapter extends PacketAdapter {
                 Player player = event.getPlayer();
                 int x = modifier.read(0), y = modifier.read(1), z = modifier.read(2);
                 Location location = new Location(player.getWorld(), x, y, z);
-                FakeBlock visualBlock = VisualiserPlugin.getBlockSender().getBlockAt(player, location);
+                FakeBlock visualBlock = VisualiserPlugin.getBlockSender().getBlockAt(player, location.toVector());
                 if (visualBlock != null) {
                     event.setCancelled(true);
                     FakeBlock.Data data = visualBlock.getData();

@@ -1,7 +1,8 @@
 package org.originmc.blockvisualiser.block;
 
-import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.util.Vector;
 import org.originmc.blockvisualiser.generator.BlockGenerator;
 
 public interface FakeBlock {
@@ -36,11 +37,18 @@ public interface FakeBlock {
     Data getData();
 
     /**
+     * Returns the world of this block
+     * 
+     * @return the world
+     */
+    World getWorld();
+    
+    /**
      * Returns the location of this block.
      *
      * @return the location
      */
-    Location getLocation();
+    Vector getLocation();
 
     /**
      * Returns the block generator that was used to create this block.

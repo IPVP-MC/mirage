@@ -1,8 +1,8 @@
 package org.originmc.blockvisualiser.generator;
 
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 import org.originmc.blockvisualiser.block.FakeBlock.Data;
 import org.originmc.blockvisualiser.block.SimpleBlockData;
 
@@ -28,7 +28,7 @@ public class SingleBlockGenerator implements BlockGenerator {
     }
 
     @Override
-    public Data getData(Player player, Location location) {
+    public Data getData(Player player, Vector location) {
         return data;
     }
 }

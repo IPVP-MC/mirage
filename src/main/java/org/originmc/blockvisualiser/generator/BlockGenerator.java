@@ -1,7 +1,7 @@
 package org.originmc.blockvisualiser.generator;
 
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 import org.originmc.blockvisualiser.block.FakeBlock.Data;
 
 /**
@@ -16,5 +16,5 @@ public interface BlockGenerator {
      * @param location the location
      * @return the data
      */
-    Data getData(Player player, Location location);
+    Data getData(Player player, Vector location);
 }

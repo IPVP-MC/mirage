@@ -10,6 +10,7 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 import org.originmc.blockvisualiser.block.FakeBlock;
 import org.originmc.blockvisualiser.block.FakeBlockImpl;
 import org.originmc.blockvisualiser.block.SimpleBlockData;
@@ -31,10 +32,10 @@ import java.util.function.Predicate;
 
 class FakeBlockSenderImpl implements FakeBlockSender {
 
-    private Map<UUID, Map<Location, FakeBlock>> sentBlocks = new ConcurrentHashMap<>();
+    private Map<UUID, Map<Vector, FakeBlock>> sentBlocks = new ConcurrentHashMap<>();
 
     @Override
-    public FakeBlock getBlockAt(Player player, Location location) {
+    public FakeBlock getBlockAt(Player player, Vector location) {
         if (!sentBlocks.containsKey(player.getUniqueId())) {
             return null;
         }
@@ -42,16 +43,16 @@ class FakeBlockSenderImpl implements FakeBlockSender {
     }
 
     @Override
-    public void sendBlock(Player player, BlockGenerator generator, Location location) {
+    public void sendBlock(Player player, BlockGenerator generator, Vector location) {
         FakeBlock block = createBlock(generator, player, location);
-        Map<Location, FakeBlock> sent = getSentBlocks(player);
+        Map<Vector, FakeBlock> sent = getSentBlocks(player);
         sent.put(location, block);
         sendSingleBlockChange(player, block);
     }
 
     @Override
-    public int sendBlocks(Player player, BlockGenerator generator, Collection<Location> locations) {
-        Map<Location, FakeBlock> send = new HashMap<>();
+    public int sendBlocks(Player player, BlockGenerator generator, Collection<Vector> locations) {
+        Map<Vector, FakeBlock> send = new HashMap<>();
         locations.forEach(pos -> {
             FakeBlock block = createBlock(generator, player, pos);
             send.put(pos, block);
@@ -62,19 +63,19 @@ class FakeBlockSenderImpl implements FakeBlockSender {
     }
 
     // Creates a fake block
-    private FakeBlock createBlock(BlockGenerator generator, Player player, Location location) {
+    private FakeBlock createBlock(BlockGenerator generator, Player player, Vector location) {
         FakeBlock.Data data = generator.getData(player, location);
-        return new FakeBlockImpl(data, location, generator);
+        return new FakeBlockImpl(data, player.getWorld(), location, generator);
     }
 
     // Updates sentBlocks with a map of newly sent blocks
-    private void addSentBlocks(Player player, Map<Location, FakeBlock> blocks) {
-        Map<Location, FakeBlock> sent = getSentBlocks(player);
+    private void addSentBlocks(Player player, Map<Vector, FakeBlock> blocks) {
+        Map<Vector, FakeBlock> sent = getSentBlocks(player);
         sent.putAll(blocks);
     }
 
-    private Map<Location, FakeBlock> getSentBlocks(Player player) {
-        Map<Location, FakeBlock> sent;
+    private Map<Vector, FakeBlock> getSentBlocks(Player player) {
+        Map<Vector, FakeBlock> sent;
         if (!sentBlocks.containsKey(player.getUniqueId())) {
             sent = new ConcurrentHashMap<>();
             sentBlocks.put(player.getUniqueId(), sent);
@@ -85,15 +86,16 @@ class FakeBlockSenderImpl implements FakeBlockSender {
     }
 
     @Override
-    public void clearBlockAt(Player player, Location location) {
+    public void clearBlockAt(Player player, Vector location) {
         if (!sentBlocks.containsKey(player.getUniqueId())) {
             return;
         }
-        Map<Location, FakeBlock> sent = sentBlocks.get(player.getUniqueId());
+        Map<Vector, FakeBlock> sent = sentBlocks.get(player.getUniqueId());
         FakeBlock block = sent.remove(location);
         if (block != null) {
-            Block current = location.getBlock();
-            player.sendBlockChange(location, current.getType(), current.getData());
+            Location loc = new Location(player.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+            Block current = loc.getBlock();
+            player.sendBlockChange(loc, current.getType(), current.getData());
         }
     }
 
@@ -107,15 +109,15 @@ class FakeBlockSenderImpl implements FakeBlockSender {
         if (!sentBlocks.containsKey(player.getUniqueId())) {
             return;
         }
-        Map<Location, FakeBlock> sent = sentBlocks.get(player.getUniqueId());
+        Map<Vector, FakeBlock> sent = sentBlocks.get(player.getUniqueId());
         Set<FakeBlock> update = new HashSet<>();
         sent.values().stream()
                 .filter(test::test) // Filter unwanted
                 .forEach(fakeBlock -> {
-                    Location fakeLocation = fakeBlock.getLocation();
-                    if (fakeLocation.getWorld().isChunkLoaded(fakeLocation.getBlockX() >> 4, fakeLocation.getBlockZ() >> 4)) {
+                    Vector fakeLocation = fakeBlock.getLocation();
+                    if (fakeBlock.getWorld().isChunkLoaded(fakeLocation.getBlockX() >> 4, fakeLocation.getBlockZ() >> 4)) {
                         FakeBlock.Data data = getCurrentData(fakeBlock);
-                        FakeBlock current = new FakeBlockImpl(data, fakeLocation, fakeBlock.getGenerator());
+                        FakeBlock current = new FakeBlockImpl(data, fakeBlock.getWorld(), fakeLocation, fakeBlock.getGenerator());
                         update.add(current);
                     }
                     sent.remove(fakeLocation);
@@ -128,7 +130,8 @@ class FakeBlockSenderImpl implements FakeBlockSender {
 
     // Gets an updated block data for a fake block
     private FakeBlock.Data getCurrentData(FakeBlock block) {
-        Block current = block.getLocation().getBlock();
+        Vector loc = block.getLocation();
+        Block current = block.getWorld().getBlockAt(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
         return new SimpleBlockData(current.getType(), current.getData());
     }
 
@@ -145,11 +148,12 @@ class FakeBlockSenderImpl implements FakeBlockSender {
 
         SetMultimap<Chunk, FakeBlock> pairs = HashMultimap.create();
         input.forEach(block -> {
-            Location location = block.getLocation();
+            Vector location = block.getLocation();
             int chunkX = location.getBlockX() >> 4;
             int chunkZ = location.getBlockZ() >> 4;
-            if (location.getWorld().isChunkLoaded(chunkX, chunkZ)) {
-                pairs.put(location.getChunk(), block);
+            if (block.getWorld().isChunkLoaded(chunkX, chunkZ)) {
+                Chunk chunk = block.getWorld().getChunkAt(chunkX, chunkZ);
+                pairs.put(chunk, block);
             }
         });
 
@@ -165,7 +169,9 @@ class FakeBlockSenderImpl implements FakeBlockSender {
 
     // Sends a single block change to a player
     private void sendSingleBlockChange(Player player, FakeBlock block) {
-        player.sendBlockChange(block.getLocation(), block.getData().getType(), block.getData().getData());
+        Vector location = block.getLocation();
+        Location loc = new Location(player.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+        player.sendBlockChange(loc, block.getData().getType(), block.getData().getData());
     }
 
     // Sends a bulk block change in a chunk to a player
@@ -179,7 +185,7 @@ class FakeBlockSenderImpl implements FakeBlockSender {
 
         int i = 0;
         for (FakeBlock block : blocksToSend) {
-            Location location = block.getLocation();
+            Vector location = block.getLocation();
             int blockID = block.getData().getType().getId();
             int data = block.getData().getData();
             data = SpigotDebreakifier.getCorrectedData(blockID, data);
