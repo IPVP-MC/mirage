@@ -1,4 +1,4 @@
-package org.originmc.blockvisualiser.protocol;
+package org.ipvp.mirage.protocol;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
@@ -9,15 +9,15 @@ import com.comphenix.protocol.reflect.StructureModifier;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.originmc.blockvisualiser.VisualiserPlugin;
-import org.originmc.blockvisualiser.block.FakeBlock;
+import org.ipvp.mirage.Mirage;
+import org.ipvp.mirage.block.FakeBlock;
 
 public class BlockDigAdapter extends PacketAdapter {
 
     private static final int STARTED_DIGGING = 0;
     private static final int FINISHED_DIGGING = 2;
 
-    public BlockDigAdapter(VisualiserPlugin plugin) {
+    public BlockDigAdapter(Mirage plugin) {
         super(plugin, ListenerPriority.NORMAL, PacketType.Play.Client.BLOCK_DIG);
     }
 
@@ -31,7 +31,7 @@ public class BlockDigAdapter extends PacketAdapter {
                 Player player = event.getPlayer();
                 int x = modifier.read(0), y = modifier.read(1), z = modifier.read(2);
                 Location location = new Location(player.getWorld(), x, y, z);
-                FakeBlock visualBlock = VisualiserPlugin.getBlockSender().getBlockAt(player, location.toVector());
+                FakeBlock visualBlock = Mirage.getBlockSender().getBlockAt(player, location.toVector());
                 if (visualBlock != null) {
                     event.setCancelled(true);
                     FakeBlock.Data data = visualBlock.getData();

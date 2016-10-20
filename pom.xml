@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.originmc</groupId>
-    <artifactId>blockvisualiser</artifactId>
+    <groupId>org.ipvp</groupId>
+    <artifactId>mirage</artifactId>
     <version>2.0.0-SNAPSHOT</version>
 
-    <name>BlockVisualiser</name>
-    <description>Send fake blocks to players</description>
+    <name>Mirage</name>
+    <description>An API used to send fake blocks to players</description>
 
     <build>
         <resources>
@@ -18,7 +18,6 @@
                 <filtering>true</filtering>
             </resource>
         </resources>
-        <finalName>BlockVisualiser</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -45,17 +44,6 @@
         </plugins>
     </build>
 
-    <distributionManagement>
-        <repository>
-            <id>origin</id>
-            <url>http://maven.sainttx.com/nexus/content/repositories/origin-mc-releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>origin</id>
-            <url>http://maven.sainttx.com/nexus/content/repositories/origin-mc-snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <repositories>
         <repository>
             <id>spigot-repo</id>
@@ -65,10 +53,6 @@
             <id>protocollib-repo</id>
             <url>http://repo.dmulloy2.net/content/groups/public/</url>
         </repository>
-        <repository>
-            <id>origin</id>
-            <url>http://maven.sainttx.com/nexus/content/groups/origin/</url>
-        </repository>
     </repositories>
 
     <dependencies>
@@ -76,12 +60,6 @@
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
             <version>1.8-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.github.paperspigot</groupId>
-            <artifactId>paperspigot</artifactId>
-            <version>1.7.10-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

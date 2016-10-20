@@ -1,10 +1,10 @@
-package org.originmc.blockvisualiser.generator;
+package org.ipvp.mirage.generator;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
-import org.originmc.blockvisualiser.block.FakeBlock.Data;
-import org.originmc.blockvisualiser.block.SimpleBlockData;
+import org.ipvp.mirage.block.FakeBlock.Data;
+import org.ipvp.mirage.block.SimpleBlockData;
 
 public class SingleBlockGenerator implements BlockGenerator {
 

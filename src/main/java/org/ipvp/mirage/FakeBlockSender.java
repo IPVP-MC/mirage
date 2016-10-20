@@ -1,9 +1,9 @@
-package org.originmc.blockvisualiser;
+package org.ipvp.mirage;
 
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
-import org.originmc.blockvisualiser.block.FakeBlock;
-import org.originmc.blockvisualiser.generator.BlockGenerator;
+import org.ipvp.mirage.block.FakeBlock;
+import org.ipvp.mirage.generator.BlockGenerator;
 
 import java.util.Collection;
 import java.util.function.Predicate;

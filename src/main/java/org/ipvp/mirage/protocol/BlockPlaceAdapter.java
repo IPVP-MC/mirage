@@ -1,4 +1,4 @@
-package org.originmc.blockvisualiser.protocol;
+package org.ipvp.mirage.protocol;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
@@ -9,11 +9,11 @@ import com.comphenix.protocol.reflect.StructureModifier;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.originmc.blockvisualiser.VisualiserPlugin;
+import org.ipvp.mirage.Mirage;
 
 public class BlockPlaceAdapter extends PacketAdapter {
 
-    public BlockPlaceAdapter(VisualiserPlugin plugin) {
+    public BlockPlaceAdapter(Mirage plugin) {
         super(plugin, ListenerPriority.NORMAL, PacketType.Play.Client.BLOCK_PLACE);
     }
 
@@ -29,7 +29,7 @@ public class BlockPlaceAdapter extends PacketAdapter {
             }
 
             Location clickedBlock = new Location(player.getWorld(), modifier.read(0), modifier.read(1), modifier.read(2));
-            if (VisualiserPlugin.getBlockSender().getBlockAt(player, clickedBlock.toVector()) != null) {
+            if (Mirage.getBlockSender().getBlockAt(player, clickedBlock.toVector()) != null) {
                 Location placedLocation = clickedBlock.clone();
                 switch (face) {
                     case 2:
@@ -48,7 +48,7 @@ public class BlockPlaceAdapter extends PacketAdapter {
                         return;
                 }
 
-                if (VisualiserPlugin.getBlockSender().getBlockAt(player, placedLocation.toVector()) == null) {
+                if (Mirage.getBlockSender().getBlockAt(player, placedLocation.toVector()) == null) {
                     event.setCancelled(true);
                     player.sendBlockChange(placedLocation, Material.AIR, (byte) 0);
                     player.updateInventory();

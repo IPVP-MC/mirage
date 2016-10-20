@@ -1,4 +1,4 @@
-package org.originmc.blockvisualiser;
+package org.ipvp.mirage;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
@@ -7,10 +7,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.originmc.blockvisualiser.protocol.BlockDigAdapter;
-import org.originmc.blockvisualiser.protocol.BlockPlaceAdapter;
+import org.ipvp.mirage.protocol.BlockDigAdapter;
+import org.ipvp.mirage.protocol.BlockPlaceAdapter;
 
-public class VisualiserPlugin extends JavaPlugin implements Listener {
+public class Mirage extends JavaPlugin implements Listener {
 
     private static FakeBlockSender blockSender = new FakeBlockSenderImpl();
 

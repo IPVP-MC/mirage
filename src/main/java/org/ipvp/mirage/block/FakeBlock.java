@@ -1,9 +1,9 @@
-package org.originmc.blockvisualiser.block;
+package org.ipvp.mirage.block;
 
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
-import org.originmc.blockvisualiser.generator.BlockGenerator;
+import org.ipvp.mirage.generator.BlockGenerator;
 
 public interface FakeBlock {
 

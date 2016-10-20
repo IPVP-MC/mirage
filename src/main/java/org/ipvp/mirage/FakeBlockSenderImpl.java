@@ -1,4 +1,4 @@
-package org.originmc.blockvisualiser;
+package org.ipvp.mirage;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
@@ -11,11 +11,10 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
-import org.originmc.blockvisualiser.block.FakeBlock;
-import org.originmc.blockvisualiser.block.FakeBlockImpl;
-import org.originmc.blockvisualiser.block.SimpleBlockData;
-import org.originmc.blockvisualiser.generator.BlockGenerator;
-import org.spigotmc.SpigotDebreakifier;
+import org.ipvp.mirage.block.FakeBlock;
+import org.ipvp.mirage.block.FakeBlockImpl;
+import org.ipvp.mirage.block.SimpleBlockData;
+import org.ipvp.mirage.generator.BlockGenerator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -188,7 +187,7 @@ class FakeBlockSenderImpl implements FakeBlockSender {
             Vector location = block.getLocation();
             int blockID = block.getData().getType().getId();
             int data = block.getData().getData();
-            data = SpigotDebreakifier.getCorrectedData(blockID, data);
+            // data = SpigotDebreakifier.getCorrectedData(blockID, data);
 
             blocks[i] = ((blockID & 0xFFF) << 4 | data & 0xF);
             ashort[i] = ((short) ((location.getBlockX() & 0xF) << 12 | (location.getBlockZ() & 0xF) << 8 | location.getBlockY()));

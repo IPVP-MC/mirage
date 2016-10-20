@@ -1,10 +1,9 @@
-package org.originmc.blockvisualiser.block;
+package org.ipvp.mirage.block;
 
 import com.google.common.base.Preconditions;
 import org.bukkit.Material;
-import org.originmc.blockvisualiser.block.FakeBlock.Data;
 
-public class SimpleBlockData implements Data {
+public class SimpleBlockData implements FakeBlock.Data {
 
     private final Material type;
     private final byte data;

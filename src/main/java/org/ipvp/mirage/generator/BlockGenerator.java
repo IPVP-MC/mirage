@@ -1,8 +1,8 @@
-package org.originmc.blockvisualiser.generator;
+package org.ipvp.mirage.generator;
 
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
-import org.originmc.blockvisualiser.block.FakeBlock.Data;
+import org.ipvp.mirage.block.FakeBlock;
 
 /**
  * Represents how visual blocks are filled.
@@ -16,5 +16,5 @@ public interface BlockGenerator {
      * @param location the location
      * @return the data
      */
-    Data getData(Player player, Vector location);
+    FakeBlock.Data getData(Player player, Vector location);
 }
