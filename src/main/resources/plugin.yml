@@ -4,3 +4,5 @@ version: ${project.version}
 description: ${project.description}
 authors: [ SainttX ]
 depend: [ ProtocolLib ]
+
+license: MIT
