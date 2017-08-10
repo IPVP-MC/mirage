@@ -37,4 +37,9 @@ public class FakeBlockImpl implements FakeBlock {
     public BlockGenerator getGenerator() {
         return generator;
     }
+
+    @Override
+    public boolean usingGenerator(BlockGenerator generator) {
+        return getGenerator().equals(generator);
+    }
 }

@@ -56,4 +56,12 @@ public interface FakeBlock {
      * @return the generator
      */
     BlockGenerator getGenerator();
+
+    /**
+     * Returns whether or not the block is using a specific generator.
+     *
+     * @param generator Generator to check
+     * @return True if the block is using the generator
+     */
+    boolean usingGenerator(BlockGenerator generator);
 }
