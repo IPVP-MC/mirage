@@ -1,23 +1,27 @@
 package org.ipvp.mirage.protocol;
 
+import java.util.Optional;
+
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.ipvp.mirage.FakeBlockSender;
+import org.ipvp.mirage.block.FakeBlock;
+
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.FieldAccessException;
 import com.comphenix.protocol.reflect.StructureModifier;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-import org.ipvp.mirage.Mirage;
-import org.ipvp.mirage.block.FakeBlock;
 
 public class BlockDigAdapter extends PacketAdapter {
 
     private static final int STARTED_DIGGING = 0;
     private static final int FINISHED_DIGGING = 2;
 
-    public BlockDigAdapter(Mirage plugin) {
+    public BlockDigAdapter(JavaPlugin plugin) {
         super(plugin, ListenerPriority.NORMAL, PacketType.Play.Client.BLOCK_DIG);
     }
 
@@ -31,7 +35,13 @@ public class BlockDigAdapter extends PacketAdapter {
                 Player player = event.getPlayer();
                 int x = modifier.read(0), y = modifier.read(1), z = modifier.read(2);
                 Location location = new Location(player.getWorld(), x, y, z);
-                FakeBlock visualBlock = Mirage.getBlockSender().getBlockAt(player, location.toVector());
+                
+                Optional<FakeBlockSender> sender = FakeBlockSender.getFrom(player);
+                if (!sender.isPresent()) {
+                    return;
+                }
+                
+                FakeBlock visualBlock = sender.get().getBlockAt(location.toVector());
                 if (visualBlock != null) {
                     event.setCancelled(true);
                     FakeBlock.Data data = visualBlock.getData();

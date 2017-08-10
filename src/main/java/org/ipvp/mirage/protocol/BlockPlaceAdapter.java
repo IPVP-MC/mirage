@@ -1,19 +1,23 @@
 package org.ipvp.mirage.protocol;
 
+import java.util.Optional;
+
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.ipvp.mirage.FakeBlockSender;
+
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.FieldAccessException;
 import com.comphenix.protocol.reflect.StructureModifier;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.ipvp.mirage.Mirage;
 
 public class BlockPlaceAdapter extends PacketAdapter {
 
-    public BlockPlaceAdapter(Mirage plugin) {
+    public BlockPlaceAdapter(JavaPlugin plugin) {
         super(plugin, ListenerPriority.NORMAL, PacketType.Play.Client.BLOCK_PLACE);
     }
 
@@ -29,7 +33,14 @@ public class BlockPlaceAdapter extends PacketAdapter {
             }
 
             Location clickedBlock = new Location(player.getWorld(), modifier.read(0), modifier.read(1), modifier.read(2));
-            if (Mirage.getBlockSender().getBlockAt(player, clickedBlock.toVector()) != null) {
+
+            Optional<FakeBlockSender> sender = FakeBlockSender.getFrom(player);
+            if (!sender.isPresent()) {
+                return;
+            }
+
+
+            if (sender.get().getBlockAt(clickedBlock.toVector()) != null) {
                 Location placedLocation = clickedBlock.clone();
                 switch (face) {
                     case 2:
@@ -48,7 +59,7 @@ public class BlockPlaceAdapter extends PacketAdapter {
                         return;
                 }
 
-                if (Mirage.getBlockSender().getBlockAt(player, placedLocation.toVector()) == null) {
+                if (sender.get().getBlockAt(placedLocation.toVector()) == null) {
                     event.setCancelled(true);
                     player.sendBlockChange(placedLocation, Material.AIR, (byte) 0);
                     player.updateInventory();
