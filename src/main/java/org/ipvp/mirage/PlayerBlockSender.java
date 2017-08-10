@@ -1,5 +1,7 @@
 package org.ipvp.mirage;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
@@ -160,22 +162,41 @@ public class PlayerBlockSender implements FakeBlockSender {
     // Sends a bulk block change in a chunk to a player
     private void sendBulkBlockChange(Chunk chunk, Set<FakeBlock> blocksToSend) throws IOException {
         PacketContainer packet = new PacketContainer(PacketType.Play.Server.MULTI_BLOCK_CHANGE);
+        ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream(blocksToSend.size());
+        DataOutputStream dataOutputStream = new DataOutputStream(byteOutputStream);
 
-        // Write block change information
-        MultiBlockChangeInfo[] information = new MultiBlockChangeInfo[blocksToSend.size()];
-        int index = 0;
+        short[] ashort = new short[blocksToSend.size()];
+        int[] blocks = new int[blocksToSend.size()];
+
+        int i = 0;
         for (FakeBlock block : blocksToSend) {
-            Location location = new Location(null, block.getLocation().getX(), block.getLocation().getY(), block.getLocation().getZ());
-            FakeBlock.Data data = block.getData();
-            WrappedBlockData wrappedBlockData = WrappedBlockData.createData(data.getType(), data.getData());
-            information[index++] = new MultiBlockChangeInfo(location, wrappedBlockData);
+            Vector location = block.getLocation();
+            int blockID = block.getData().getType().getId();
+            int data = block.getData().getData();
+            // data = SpigotDebreakifier.getCorrectedData(blockID, data);
+
+            blocks[i] = ((blockID & 0xFFF) << 4 | data & 0xF);
+            ashort[i] = ((short) ((location.getBlockX() & 0xF) << 12 | (location.getBlockZ() & 0xF) << 8 | location.getBlockY()));
+
+            dataOutputStream.writeShort(ashort[i]);
+            dataOutputStream.writeShort(blocks[i]);
+            i++;
+        }
+
+        int expectedSize = blocksToSend.size() * 4;
+        byte[] bulk = byteOutputStream.toByteArray();
+        if (bulk.length != expectedSize) {
+            throw new IOException("Expected length: '" + expectedSize + "' doesn't match the generated length: '" + bulk.length + "'");
         }
 
         // Write the data to the packet
         packet.getChunkCoordIntPairs().write(0, new ChunkCoordIntPair(chunk.getX(), chunk.getZ()));
-        packet.getMultiBlockChangeInfoArrays().write(0, information);
+        packet.getByteArrays().write(0, bulk);
+        packet.getIntegers().write(0, blocksToSend.size());
+        packet.getSpecificModifier(short[].class).write(0, ashort);
+        packet.getIntegerArrays().write(0, blocks);
         try {
-            ProtocolLibrary.getProtocolManager().sendServerPacket(who, packet);
+            ProtocolLibrary.getProtocolManager().sendServerPacket(getPlayer(), packet);
         } catch (InvocationTargetException e) {
             throw new RuntimeException(e);
         }
