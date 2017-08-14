@@ -29,10 +29,11 @@ Developers can easily tap into the Mirage API by simply adding the Mirage depend
 
 ### Sending Blocks ###
 
-Sending blocks is made simple through the usage of the ```BlockGenerator``` and ```FakeBlockSender``` interfaces. To begin, we will need to create a BlockGenerator for our own usage:
+Sending blocks is made simple through the usage of the ```BlockGenerator``` and ```FakeBlockSender``` interfaces. To begin, we will need to create a `BlockGenerator` and a `FakeBlockSender` instance for our own usage:
 
 ```java
 private BlockGenerator generator = new SingleBlockGenerator(Material.WOOL, (byte) 14);
+private FakeBlockSender fakeBlockSender = new PlayerBlockSender(player);
 ```
 In this example, we will be sending fake blocks of red wool to players.
 
@@ -62,7 +63,7 @@ public void sendPillarToPlayer(Player player) {
         blocks.add(new Vector(start.getBlockX(), y, start.getBlockZ()));
     }
     // Send the blocks to the player through usage of the block sender instance
-    Mirage.getBlockSender().sendBlocks(player, generator, blocks);
+    fakeBlockSender.sendBlocks(generator, blocks);
 }
 ```
 
@@ -73,8 +74,8 @@ Sending a single block is as simple as passing in a vector location and our gene
 /**
  * Sends a single wool block to a player
  */
-public void sendWool(Player player, Vector location) {
-    Mirage.getBlockSender().sendBlock(player, generator, location);
+public void sendWool(Vector location) {
+    fakeBlockSender.sendBlock(generator, location);
 }
 ```
 
