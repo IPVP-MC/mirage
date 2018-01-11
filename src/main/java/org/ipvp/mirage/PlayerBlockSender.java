@@ -60,7 +60,7 @@ public class PlayerBlockSender implements FakeBlockSender {
     @Override
     public void sendBlock(BlockGenerator generator, Vector location) {
         FakeBlock block = createBlock(generator, location);
-        sentBlocks.put(location, block);
+        sentBlocks.put(new Vector(location.getBlockX(), location.getBlockY(), location.getBlockZ()), block);
         sendSingleBlockChange(block);
     }
 
@@ -69,7 +69,7 @@ public class PlayerBlockSender implements FakeBlockSender {
         Map<Vector, FakeBlock> send = new HashMap<>();
         locations.forEach(pos -> {
             FakeBlock block = createBlock(generator, pos);
-            send.put(pos, block);
+            send.put(new Vector(pos.getBlockX(), pos.getBlockY(), pos.getBlockZ()), block);
         });
         sentBlocks.putAll(send);
         handleBlockChanges(send.values());

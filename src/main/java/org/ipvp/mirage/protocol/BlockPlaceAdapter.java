@@ -14,6 +14,7 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.FieldAccessException;
 import com.comphenix.protocol.reflect.StructureModifier;
+import org.ipvp.mirage.block.FakeBlock;
 
 public class BlockPlaceAdapter extends PacketAdapter {
 
@@ -32,38 +33,48 @@ public class BlockPlaceAdapter extends PacketAdapter {
                 return;
             }
 
-            Location clickedBlock = new Location(player.getWorld(), modifier.read(0), modifier.read(1), modifier.read(2));
+            int x = modifier.read(0);
+            int y = modifier.read(1);
+            int z = modifier.read(2);
+            Location clickedBlock = new Location(player.getWorld(), x, y, z);
+            clickedBlock = clickedBlock.getBlock().getLocation();
 
-            Optional<FakeBlockSender> sender = FakeBlockSender.getFrom(player);
-            if (!sender.isPresent()) {
+            Optional<FakeBlockSender> opt = FakeBlockSender.getFrom(player);
+            if (!opt.isPresent()) {
                 return;
             }
 
+            FakeBlockSender sender = opt.get();
+            FakeBlock block = sender.getBlockAt(clickedBlock.toVector());
 
-            if (sender.get().getBlockAt(clickedBlock.toVector()) != null) {
-                Location placedLocation = clickedBlock.clone();
-                switch (face) {
-                    case 2:
-                        placedLocation.add(0, 0, -1);
-                        break;
-                    case 3:
-                        placedLocation.add(0, 0, 1);
-                        break;
-                    case 4:
-                        placedLocation.add(-1, 0, 0);
-                        break;
-                    case 5:
-                        placedLocation.add(1, 0, 0);
-                        break;
-                    default:
-                        return;
-                }
+            if (block == null) {
+                return;
+            }
 
-                if (sender.get().getBlockAt(placedLocation.toVector()) == null) {
-                    event.setCancelled(true);
-                    player.sendBlockChange(placedLocation, Material.AIR, (byte) 0);
-                    player.updateInventory();
-                }
+            Location placedLocation = clickedBlock.clone();
+            switch (face) {
+                case 2:
+                    placedLocation.add(0, 0, -1);
+                    break;
+                case 3:
+                    placedLocation.add(0, 0, 1);
+                    break;
+                case 4:
+                    placedLocation.add(-1, 0, 0);
+                    break;
+                case 5:
+                    placedLocation.add(1, 0, 0);
+                    break;
+                default:
+                    return;
+            }
+
+            event.setCancelled(true);
+
+            // Revert the block placing for the player
+            if (sender.getBlockAt(placedLocation.toVector()) == null) {
+                player.sendBlockChange(placedLocation, Material.AIR, (byte) 0);
+                player.updateInventory();
             }
         } catch (FieldAccessException ex) {
             ex.printStackTrace();
