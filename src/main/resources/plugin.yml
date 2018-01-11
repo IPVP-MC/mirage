@@ -1,8 +1,0 @@
-name: Mirage
-main: org.ipvp.mirage.Mirage
-version: ${project.version}
-description: ${project.description}
-authors: [ SainttX ]
-depend: [ ProtocolLib ]
-
-license: MIT
