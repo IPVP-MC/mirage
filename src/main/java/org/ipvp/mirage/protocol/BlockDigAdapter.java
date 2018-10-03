@@ -46,7 +46,7 @@ public class BlockDigAdapter extends PacketAdapter {
                     event.setCancelled(true);
                     FakeBlock.Data data = visualBlock.getData();
                     if (status == FINISHED_DIGGING || player.getGameMode() == GameMode.CREATIVE) {
-                        player.sendBlockChange(location, data.getType(), data.getData());
+                        player.sendBlockChange(location, data.getData());
                     }
                 }
             }

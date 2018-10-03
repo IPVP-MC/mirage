@@ -1,7 +1,9 @@
 package org.ipvp.mirage.block;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.util.Vector;
 import org.ipvp.mirage.generator.BlockGenerator;
 
@@ -26,7 +28,7 @@ public interface FakeBlock {
          *
          * @return the data
          */
-        byte getData();
+        BlockData getData();
     }
 
     /**
@@ -46,9 +48,18 @@ public interface FakeBlock {
     /**
      * Returns the location of this block.
      *
+     * @return the location, as a vector
+     */
+    Vector getVector();
+
+    /**
+     * Returns the location of this block.
+     *
      * @return the location
      */
-    Vector getLocation();
+    default Location getLocation() {
+        return getVector().toLocation(getWorld());
+    }
 
     /**
      * Returns the block generator that was used to create this block.

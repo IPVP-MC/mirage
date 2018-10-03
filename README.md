@@ -19,8 +19,8 @@ Developers can easily tap into the Mirage API by simply adding the Mirage depend
 ```xml
 <dependencies>
   <dependency>
-    <groupId>org.ipvp/groupId>
-    <artifactId>mirage/artifactId>
+    <groupId>org.ipvp</groupId>
+    <artifactId>mirage</artifactId>
     <version>2.0.0-SNAPSHOT</version>
     <scope>provided</scope>
   </dependency>

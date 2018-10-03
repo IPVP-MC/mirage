@@ -73,7 +73,7 @@ public class BlockPlaceAdapter extends PacketAdapter {
 
             // Revert the block placing for the player
             if (sender.getBlockAt(placedLocation.toVector()) == null) {
-                player.sendBlockChange(placedLocation, Material.AIR, (byte) 0);
+                player.sendBlockChange(placedLocation, Material.AIR.createBlockData());
                 player.updateInventory();
             }
         } catch (FieldAccessException ex) {

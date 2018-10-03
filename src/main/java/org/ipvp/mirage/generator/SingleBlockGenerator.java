@@ -1,6 +1,7 @@
 package org.ipvp.mirage.generator;
 
 import org.bukkit.Material;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.ipvp.mirage.block.FakeBlock.Data;
@@ -10,8 +11,12 @@ public class SingleBlockGenerator implements BlockGenerator {
 
     private final Data data;
 
-    public SingleBlockGenerator(Material type, byte data) {
-        this(new SimpleBlockData(type, data));
+    public SingleBlockGenerator(Material type) {
+        this(new SimpleBlockData(type));
+    }
+
+    public SingleBlockGenerator(BlockData data) {
+        this(new SimpleBlockData(data));
     }
 
     public SingleBlockGenerator(Data data) {
