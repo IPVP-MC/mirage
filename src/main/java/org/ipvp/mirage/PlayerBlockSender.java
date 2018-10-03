@@ -13,6 +13,8 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 import org.ipvp.mirage.block.FakeBlock;
 import org.ipvp.mirage.block.FakeBlockImpl;
@@ -35,9 +37,11 @@ public class PlayerBlockSender implements FakeBlockSender {
      *
      * @param player Player to recieve fake blocks
      */
-    public PlayerBlockSender(Player player) {
+    public PlayerBlockSender(Plugin plugin, Player player) {
         Objects.requireNonNull(player, "Player cannot be null");
         this.who = player;
+
+        player.setMetadata(BLOCK_SENDER_META, new FixedMetadataValue(plugin, this));
     }
 
     @Override
