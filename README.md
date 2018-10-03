@@ -27,12 +27,22 @@ Developers can easily tap into the Mirage API by simply adding the Mirage depend
 </dependencies>
 ```
 
+Make sure to register the packet adapters in your main class:
+
+```java
+@Override
+public void onEnable() {
+    ProtocolLibrary.getProtocolManager().addPacketListener(new BlockDigAdapter(this));
+    ProtocolLibrary.getProtocolManager().addPacketListener(new BlockClickAdapter(this));
+}
+```
+
 ### Sending Blocks ###
 
 Sending blocks is made simple through the usage of the ```BlockGenerator``` and ```FakeBlockSender``` interfaces. To begin, we will need to create a `BlockGenerator` and a `FakeBlockSender` instance for our own usage:
 
 ```java
-private BlockGenerator generator = new SingleBlockGenerator(Material.WOOL, (byte) 14);
+private BlockGenerator generator = new SingleBlockGenerator(Material.PURPLE_STAINED_GLASS);
 private FakeBlockSender fakeBlockSender = new PlayerBlockSender(player);
 ```
 In this example, we will be sending fake blocks of red wool to players.

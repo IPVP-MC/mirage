@@ -2,6 +2,8 @@ package org.ipvp.mirage.protocol;
 
 import java.util.Optional;
 
+import com.comphenix.protocol.wrappers.BlockPosition;
+import com.comphenix.protocol.wrappers.EnumWrappers;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -19,23 +21,22 @@ import org.ipvp.mirage.block.FakeBlock;
 public class BlockPlaceAdapter extends PacketAdapter {
 
     public BlockPlaceAdapter(JavaPlugin plugin) {
-        super(plugin, ListenerPriority.NORMAL, PacketType.Play.Client.BLOCK_PLACE);
+        super(plugin, ListenerPriority.LOWEST, PacketType.Play.Client.BLOCK_PLACE);
     }
 
     @Override
     public void onPacketReceiving(PacketEvent event) {
-        StructureModifier<Integer> modifier = event.getPacket().getIntegers();
+        StructureModifier<EnumWrappers.Direction> modifier = event.getPacket().getDirections();
+        StructureModifier<BlockPosition> positions = event.getPacket().getBlockPositionModifier();
+
         Player player = event.getPlayer();
 
         try {
-            int face = modifier.read(3);
-            if (face == 255) {
-                return;
-            }
+            EnumWrappers.Direction face = modifier.read(0);
+            event.getPlayer().sendMessage(face.name());
 
-            int x = modifier.read(0);
-            int y = modifier.read(1);
-            int z = modifier.read(2);
+            BlockPosition position = positions.read(0);
+            int x = position.getX(), y = position.getY(), z = position.getZ();
             Location clickedBlock = new Location(player.getWorld(), x, y, z);
             clickedBlock = clickedBlock.getBlock().getLocation();
 
@@ -47,28 +48,37 @@ public class BlockPlaceAdapter extends PacketAdapter {
             FakeBlockSender sender = opt.get();
             FakeBlock block = sender.getBlockAt(clickedBlock.toVector());
 
+            event.getPlayer().sendMessage("clicked block: " + block);
+
             if (block == null) {
                 return;
             }
 
             Location placedLocation = clickedBlock.clone();
             switch (face) {
-                case 2:
-                    placedLocation.add(0, 0, -1);
+                case UP:
+                    placedLocation.add(0, -1, 0);
                     break;
-                case 3:
+                case DOWN:
+                    placedLocation.add(0, 1, 0);
+                    break;
+                case NORTH:
                     placedLocation.add(0, 0, 1);
                     break;
-                case 4:
-                    placedLocation.add(-1, 0, 0);
+                case SOUTH:
+                    placedLocation.add(0, 0, -1);
                     break;
-                case 5:
+                case EAST:
                     placedLocation.add(1, 0, 0);
+                    break;
+                case WEST:
+                    placedLocation.add(-1, 0, 0);
                     break;
                 default:
                     return;
             }
 
+            event.getPlayer().sendMessage("cancelled");
             event.setCancelled(true);
 
             // Revert the block placing for the player

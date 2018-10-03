@@ -35,7 +35,7 @@ public class PlayerBlockSender implements FakeBlockSender {
     /**
      * Initializes a fake block sender for a specific player
      *
-     * @param player Player to recieve fake blocks
+     * @param player Player to receive fake blocks
      */
     public PlayerBlockSender(Plugin plugin, Player player) {
         Objects.requireNonNull(player, "Player cannot be null");
@@ -175,45 +175,5 @@ public class PlayerBlockSender implements FakeBlockSender {
         } catch (InvocationTargetException e) {
             throw new RuntimeException(e);
         }
-
-        /*
-        ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream(blocksToSend.size());
-        DataOutputStream dataOutputStream = new DataOutputStream(byteOutputStream);
-
-        short[] ashort = new short[blocksToSend.size()];
-        int[] blocks = new int[blocksToSend.size()];
-
-        int i = 0;
-        for (FakeBlock block : blocksToSend) {
-            Vector location = block.getLocation();
-            int blockID = block.getData().getType().getId();
-            int data = block.getData().getData();
-            // data = SpigotDebreakifier.getCorrectedData(blockID, data);
-
-            blocks[i] = ((blockID & 0xFFF) << 4 | data & 0xF);
-            ashort[i] = ((short) ((location.getBlockX() & 0xF) << 12 | (location.getBlockZ() & 0xF) << 8 | location.getBlockY()));
-
-            dataOutputStream.writeShort(ashort[i]);
-            dataOutputStream.writeShort(blocks[i]);
-            i++;
-        }
-
-        int expectedSize = blocksToSend.size() * 4;
-        byte[] bulk = byteOutputStream.toByteArray();
-        if (bulk.length != expectedSize) {
-            throw new IOException("Expected length: '" + expectedSize + "' doesn't match the generated length: '" + bulk.length + "'");
-        }
-
-        // Write the data to the packet
-        packet.getChunkCoordIntPairs().write(0, new ChunkCoordIntPair(chunk.getX(), chunk.getZ()));
-        packet.getByteArrays().write(0, bulk);
-        packet.getIntegers().write(0, blocksToSend.size());
-        packet.getSpecificModifier(short[].class).write(0, ashort);
-        packet.getIntegerArrays().write(0, blocks);
-        try {
-            ProtocolLibrary.getProtocolManager().sendServerPacket(getPlayer(), packet);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }*/
     }
 }
