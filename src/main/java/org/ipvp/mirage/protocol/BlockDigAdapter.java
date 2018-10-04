@@ -2,6 +2,9 @@ package org.ipvp.mirage.protocol;
 
 import java.util.Optional;
 
+import com.comphenix.protocol.wrappers.BlockPosition;
+import com.comphenix.protocol.wrappers.ChunkPosition;
+import com.comphenix.protocol.wrappers.EnumWrappers;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -18,22 +21,21 @@ import com.comphenix.protocol.reflect.StructureModifier;
 
 public class BlockDigAdapter extends PacketAdapter {
 
-    private static final int STARTED_DIGGING = 0;
-    private static final int FINISHED_DIGGING = 2;
-
     public BlockDigAdapter(JavaPlugin plugin) {
         super(plugin, ListenerPriority.NORMAL, PacketType.Play.Client.BLOCK_DIG);
     }
 
     @Override
     public void onPacketReceiving(PacketEvent event) {
-        StructureModifier<Integer> modifier = event.getPacket().getIntegers();
+        StructureModifier<EnumWrappers.PlayerDigType> digTypes = event.getPacket().getPlayerDigTypes();
+        StructureModifier<BlockPosition> positions = event.getPacket().getBlockPositionModifier();
 
         try {
-            int status = modifier.read(4);
-            if (status == STARTED_DIGGING || status == FINISHED_DIGGING) {
+            EnumWrappers.PlayerDigType status = digTypes.read(0);
+            if (status == EnumWrappers.PlayerDigType.START_DESTROY_BLOCK || status == EnumWrappers.PlayerDigType.STOP_DESTROY_BLOCK) {
                 Player player = event.getPlayer();
-                int x = modifier.read(0), y = modifier.read(1), z = modifier.read(2);
+                BlockPosition position = positions.read(0);
+                int x = position.getX(), y = position.getY(), z = position.getZ();
                 Location location = new Location(player.getWorld(), x, y, z);
                 
                 Optional<FakeBlockSender> sender = FakeBlockSender.getFrom(player);
@@ -45,8 +47,8 @@ public class BlockDigAdapter extends PacketAdapter {
                 if (visualBlock != null) {
                     event.setCancelled(true);
                     FakeBlock.Data data = visualBlock.getData();
-                    if (status == FINISHED_DIGGING || player.getGameMode() == GameMode.CREATIVE) {
-                        player.sendBlockChange(location, data.getType(), data.getData());
+                    if (status == EnumWrappers.PlayerDigType.STOP_DESTROY_BLOCK || player.getGameMode() == GameMode.CREATIVE) {
+                        player.sendBlockChange(location, data.getData());
                     }
                 }
             }

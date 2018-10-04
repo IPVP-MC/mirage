@@ -2,29 +2,28 @@ package org.ipvp.mirage.block;
 
 import com.google.common.base.Preconditions;
 import org.bukkit.Material;
+import org.bukkit.block.data.BlockData;
 
 public class SimpleBlockData implements FakeBlock.Data {
 
-    private final Material type;
-    private final byte data;
+    private final BlockData data;
 
     public SimpleBlockData(Material type) {
-        this(type, (byte) 0);
+        this(type.createBlockData());
     }
 
-    public SimpleBlockData(Material type, byte data) {
-        Preconditions.checkNotNull(type, "Type cannot be null");
-        this.type = type;
+    public SimpleBlockData(BlockData data) {
+        Preconditions.checkNotNull(data, "Data cannot be null");
         this.data = data;
     }
 
     @Override
     public Material getType() {
-        return type;
+        return data.getMaterial();
     }
 
     @Override
-    public byte getData() {
+    public BlockData getData() {
         return data;
     }
 }

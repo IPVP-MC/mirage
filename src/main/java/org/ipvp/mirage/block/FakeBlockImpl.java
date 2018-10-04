@@ -29,7 +29,7 @@ public class FakeBlockImpl implements FakeBlock {
     }
 
     @Override
-    public Vector getLocation() {
+    public Vector getVector() {
         return position;
     }
 
